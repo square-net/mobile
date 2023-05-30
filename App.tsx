@@ -18,6 +18,7 @@ import { onError } from "apollo-link-error";
 import { TokenRefreshLink } from "apollo-link-token-refresh";
 import { useEffect, useState } from "react";
 import { REACT_APP_SERVER_ORIGIN } from "@env";
+import Index from "./src/Index";
 
 const cache = new InMemoryCache({});
 
@@ -144,6 +145,7 @@ export default function App() {
         <ApolloProvider client={client}>
             <View>
                 <Text>{loading ? "Loading..." : `isAuth: ${isAuth}`}</Text>
+                <Index />
                 <StatusBar style="auto" />
             </View>
         </ApolloProvider>
