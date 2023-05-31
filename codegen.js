@@ -7,15 +7,15 @@ module.exports = {
             plugins: [
                 "typescript",
                 "typescript-operations",
-                "typescript-react-apollo"
+                "typescript-react-apollo",
             ],
             config: {
                 skipTypename: false,
                 withHooks: true,
                 withHOC: false,
                 withComponent: false,
-                apolloReactHooksImportFrom: "@apollo/client"
-            }
-        }
-    }
+                apolloReactHooksImportFrom: "@apollo/client",
+            },
+        },
+    },
 };

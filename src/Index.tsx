@@ -8,7 +8,7 @@ function Index() {
         <View>
             <Text>{data?.me?.username}</Text>
         </View>
-    )
+    );
 }
 
 export default Index;
