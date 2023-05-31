@@ -3,8 +3,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 const token = "token";
 
 export async function getItem(key: string): Promise<string | null> {
-    const value = await AsyncStorage.getItem(key);
-    return value ? value : null;
+    const value = AsyncStorage.getItem(key);
+    return value;
 }
 
 export async function setItem(key: string, value: string): Promise<void> {

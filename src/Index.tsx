@@ -2,11 +2,11 @@ import { Text, View } from "react-native";
 import { useMeQuery } from "./generated/graphql";
 
 function Index() {
-    const { data } = useMeQuery({ fetchPolicy: "cache-and-network" });
+    const { data, loading } = useMeQuery({ fetchPolicy: "cache-and-network" });
 
     return (
         <View>
-            <Text>{data?.me?.username}</Text>
+            <Text>{loading ? "Loading..." : (data && data.me ? data.me.username : "No context provided.")}</Text>
         </View>
     );
 }

@@ -1,6 +1,5 @@
-import { ApolloLink } from "@apollo/client";
+import { ApolloLink, Observable } from "@apollo/client";
 import { checkToken } from "./util";
-import { setContext } from "@apollo/client/link/context";
 import { TokenRefreshLink } from "apollo-link-token-refresh";
 import { REACT_APP_SERVER_ORIGIN } from "@env";
 
@@ -12,12 +11,8 @@ export function refreshLink(
     return new TokenRefreshLink({
         // @ts-ignore
         isTokenValidOrUndefined: async () => {
-            let possibleToken = getAccessToken();
-            return checkToken(
-                typeof possibleToken === "object"
-                    ? await possibleToken
-                    : possibleToken
-            );
+            let possibleToken = await getAccessToken();
+            return checkToken(possibleToken);
         },
         accessTokenField: "accessToken",
         fetchAccessToken: () => {
@@ -27,10 +22,9 @@ export function refreshLink(
             });
         },
         handleResponse:
-            (_: any, accessTokenField: string | number) =>
+            (_: any, accessTokenField: string) =>
             async (response: Response) => {
                 const result = await response.json();
-                console.log(result);
                 return {
                     [accessTokenField]: result[accessTokenField],
                 };
@@ -38,8 +32,8 @@ export function refreshLink(
         handleFetch: (accessTokenPayload: string) => {
             setAccessToken(accessTokenPayload);
         },
-        handleError: (err: any) => {
-            console.error(err);
+        handleError: (error: any) => {
+            console.error(error);
         },
     }) as ApolloLink;
 }
@@ -47,13 +41,34 @@ export function refreshLink(
 export function authContextLink(
     getAccessToken: () => Promise<string | null> | string | null
 ): ApolloLink {
-    return setContext(async (_req: any, { headers }: any) => {
-        const token = await getAccessToken();
-        return {
-            headers: {
-                ...headers,
-                authorization: token ? `Bearer ${token}` : "",
-            },
-        };
-    });
+    return new ApolloLink(
+        (operation, forward) => new Observable((observer) => {
+            let handle: any;
+            Promise.resolve(operation)
+                .then(async (operation) => {
+                    const accessToken = await getAccessToken();
+                    if (accessToken) {
+                        operation.setContext({
+                            headers: {
+                                authorization: `Bearer ${accessToken}`,
+                            },
+                        });
+                    }
+                })
+                .then(() => {
+                    handle = forward(operation).subscribe({
+                        next: observer.next.bind(observer),
+                        error: observer.error.bind(observer),
+                        complete: observer.complete.bind(observer),
+                    });
+                })
+                .catch(observer.error.bind(observer));
+
+            return () => {
+                if (handle)
+                    handle.unsubscribe();
+            };
+        })
+    );
+    
 }

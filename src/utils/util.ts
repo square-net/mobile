@@ -8,15 +8,6 @@ export type TokenType = {
     exp: number;
 };
 
-let accessToken = "";
-export const setServerAccessToken = (s: string) => {
-    accessToken = s;
-};
-
-export const getServerAccessToken = () => {
-    return accessToken;
-};
-
 export const checkToken = (token?: string | null): boolean => {
     if (!token) {
         return true;
