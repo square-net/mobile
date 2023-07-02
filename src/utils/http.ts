@@ -70,5 +70,4 @@ export function authContextLink(
             };
         })
     );
-    
 }
